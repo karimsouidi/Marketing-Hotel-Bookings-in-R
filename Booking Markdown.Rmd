@@ -1,0 +1,125 @@
+---
+title: "Marketing Project"
+author: "Karim Souidi"
+date: "June 14, 2019"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+options(repos=structure(c(CRAN="http://cran.utstat.utoronto.ca/")))
+install.packages("magrittr")
+install.packages("tidyverse")
+install.packages("ggplot2")
+library(magrittr)
+library(tidyverse)
+library(ggplot2)
+```
+
+### Importing the file
+```{r cars}
+mydata<-read.csv("K:/_Staff/souidik/Bookings_data.csv", header =TRUE, stringsAsFactors = FALSE )
+```
+
+### Summary of the file
+```{r}
+head(mydata)
+summary(mydata$ADR)
+str(mydata)
+```
+
+
+### Formatting some variables
+```{r}
+mydata$ADR<-as.numeric(mydata$ADR)
+mydata$time_until_checkin<-as.numeric(mydata$time_until_checkin)
+city<-as.factor(mydata$City)
+checkin_date<-as.Date(mydata$checkin_date)
+booking_date<-as.Date(mydata$booking_date)
+checkout_date<-as.Date(mydata$checkout_date)
+```
+
+
+### Cheking format of Data variables
+```{r}
+class(checkin_date)
+class(checkin_date)
+class(checkin_date)
+```
+
+```{r}
+ggplot2::ggplot(data=mydata, aes(x = checkin_date, y = ADR)) +
+        geom_point(color = "red") +
+        labs(title = "Price Movement")
+```
+
+```{r}
+ggplot2::ggplot(data=mydata, aes(x = booking_date, y = ADR)) +
+        geom_point(color = "blue") +
+        labs(title = "Price Movement")
+```
+
+### Staring to build a demand function for hotels
+```{r}
+demand<-mydata %>% 
+  dplyr::group_by(ADR) %>%
+  dplyr::summarise(number = n())
+
+summary(demand)
+```
+
+### The demand function
+```{r}
+demand_func<-lm(log(number)~log(ADR), data = demand)
+summary(demand_func)
+plot(demand_func)
+```
+
+### Dedmand function by city
+```{r}
+demand_by_city <-mydata %>% 
+          group_by(City, ADR) %>%
+          tally()
+head(demand_by_city)
+
+
+```
+
+### Dedmand function by city Model
+```{r}
+demand_by_city%>%
+  filter(City == "A")%>%
+  lm(log(n)~log(ADR), data =.)%>%
+  summary()
+```
+
+
+```{r}
+demand_by_city%>%
+  filter(City == "B")%>%
+  lm(log(n)~log(ADR), data =.)%>%
+  summary()
+```
+
+
+
+```{r}
+demand_by_city%>%
+  filter(City == "D")%>%
+  lm(log(n)~log(ADR), data =.)%>%
+  summary()
+```
+
+
+```{r}
+demand_by_city%>%
+  filter(City == "E")%>%
+  lm(log(n)~log(ADR), data =.)%>%
+  summary()
+```
